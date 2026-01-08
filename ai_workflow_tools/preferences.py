@@ -127,10 +127,17 @@ class AIWorkflowPreferences(AddonPreferences):
         row.prop(action, "change_image_editor", text="Change Image Editor")
 
         if action.change_image_editor:
-            row = box.row()
+            row = box.row(align=True)
             row.prop(action, "image_name_to_view", text="Image")
             # Add image picker
             row.prop_search(action, "image_name_to_view", bpy.data, "images", text="")
+            # Add create button
+            create_op = row.operator("ai_workflow.create_image_editor_image", text="", icon='ADD')
+
+            # Show warning if image doesn't exist
+            if action.image_name_to_view and action.image_name_to_view not in bpy.data.images:
+                warning_row = box.row()
+                warning_row.label(text=f"⚠ Image '{action.image_name_to_view}' doesn't exist", icon='ERROR')
 
     def draw_node_tree_settings(self, layout, action):
         """Draw node tree settings."""
@@ -167,8 +174,19 @@ class AIWorkflowPreferences(AddonPreferences):
                 row = col.row(align=True)
                 row.prop(img, "name", text="")
                 row.prop_search(img, "name", bpy.data, "images", text="")
-                op = row.operator("ai_workflow.remove_reset_image", text="", icon='X')
-                op.index = idx
+
+                # Add create button
+                create_op = row.operator("ai_workflow.create_reset_image", text="", icon='ADD')
+                create_op.index = idx
+
+                # Remove button
+                remove_op = row.operator("ai_workflow.remove_reset_image", text="", icon='X')
+                remove_op.index = idx
+
+                # Show warning if image doesn't exist
+                if img.name and img.name not in bpy.data.images:
+                    warning_row = col.row()
+                    warning_row.label(text=f"  ⚠ '{img.name}' doesn't exist", icon='ERROR')
 
             row = col.row()
             row.operator("ai_workflow.add_reset_image", text="Add Image", icon='ADD')
@@ -184,12 +202,21 @@ class AIWorkflowPreferences(AddonPreferences):
             sub_box = col.box()
             row = sub_box.row(align=True)
             row.label(text=f"Image {idx + 1}:", icon='IMAGE_DATA')
-            op = row.operator("ai_workflow.remove_save_image", text="", icon='X')
-            op.index = idx
+            remove_op = row.operator("ai_workflow.remove_save_image", text="", icon='X')
+            remove_op.index = idx
 
-            row = sub_box.row()
+            row = sub_box.row(align=True)
             row.prop(img, "name", text="Image Name")
             row.prop_search(img, "name", bpy.data, "images", text="")
+
+            # Add create button
+            create_op = row.operator("ai_workflow.create_save_image", text="", icon='ADD')
+            create_op.index = idx
+
+            # Show warning if image doesn't exist
+            if img.name and img.name not in bpy.data.images:
+                warning_row = sub_box.row()
+                warning_row.label(text=f"⚠ Image '{img.name}' doesn't exist", icon='ERROR')
 
             sub_box.prop(img, "save_as", text="Save Path")
             sub_box.prop(img, "allow_overwrite", text="Allow Overwrite")

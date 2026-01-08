@@ -386,6 +386,117 @@ class RemoveSaveImageOperator(Operator):
         return {'FINISHED'}
 
 
+class CreateImageOperator(Operator):
+    """Create a new image if it doesn't exist."""
+    bl_idname = "ai_workflow.create_image"
+    bl_label = "Create Image"
+    bl_description = "Create a new blank image with the specified name"
+
+    image_name: StringProperty(name="Image Name")
+    width: IntProperty(name="Width", default=1920, min=1, max=65536)
+    height: IntProperty(name="Height", default=1080, min=1, max=65536)
+
+    def invoke(self, context, event):
+        """Show dialog for image dimensions."""
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
+
+    def draw(self, context):
+        """Draw the dialog."""
+        layout = self.layout
+        layout.label(text=f"Create: {self.image_name}")
+        layout.prop(self, "width")
+        layout.prop(self, "height")
+
+    def execute(self, context):
+        if not self.image_name.strip():
+            self.report({'ERROR'}, "Image name cannot be empty")
+            return {'CANCELLED'}
+
+        if self.image_name in bpy.data.images:
+            self.report({'INFO'}, f"Image '{self.image_name}' already exists")
+            return {'FINISHED'}
+
+        try:
+            img = bpy.data.images.new(self.image_name, self.width, self.height)
+            self.report({'INFO'}, f"Created image '{self.image_name}' ({self.width}x{self.height})")
+            return {'FINISHED'}
+        except Exception as e:
+            self.report({'ERROR'}, f"Failed to create image: {str(e)}")
+            return {'CANCELLED'}
+
+
+class CreateImageEditorImageOperator(Operator):
+    """Create the image for Image Editor view."""
+    bl_idname = "ai_workflow.create_image_editor_image"
+    bl_label = "Create Image"
+    bl_description = "Create the image specified for Image Editor view"
+
+    def execute(self, context):
+        preferences = context.preferences.addons[__package__].preferences
+        if preferences.active_action_index < len(preferences.actions):
+            action = preferences.actions[preferences.active_action_index]
+            if action.image_name_to_view.strip():
+                bpy.ops.ai_workflow.create_image(
+                    'INVOKE_DEFAULT',
+                    image_name=action.image_name_to_view
+                )
+            else:
+                self.report({'ERROR'}, "Image name is empty")
+                return {'CANCELLED'}
+        return {'FINISHED'}
+
+
+class CreateResetImageOperator(Operator):
+    """Create an image from the reset list."""
+    bl_idname = "ai_workflow.create_reset_image"
+    bl_label = "Create Image"
+    bl_description = "Create the specified reset image"
+
+    index: IntProperty()
+
+    def execute(self, context):
+        preferences = context.preferences.addons[__package__].preferences
+        if preferences.active_action_index < len(preferences.actions):
+            action = preferences.actions[preferences.active_action_index]
+            if self.index < len(action.images_to_reset):
+                img_item = action.images_to_reset[self.index]
+                if img_item.name.strip():
+                    bpy.ops.ai_workflow.create_image(
+                        'INVOKE_DEFAULT',
+                        image_name=img_item.name
+                    )
+                else:
+                    self.report({'ERROR'}, "Image name is empty")
+                    return {'CANCELLED'}
+        return {'FINISHED'}
+
+
+class CreateSaveImageOperator(Operator):
+    """Create an image from the save list."""
+    bl_idname = "ai_workflow.create_save_image"
+    bl_label = "Create Image"
+    bl_description = "Create the specified save image"
+
+    index: IntProperty()
+
+    def execute(self, context):
+        preferences = context.preferences.addons[__package__].preferences
+        if preferences.active_action_index < len(preferences.actions):
+            action = preferences.actions[preferences.active_action_index]
+            if self.index < len(action.images_to_save):
+                img_item = action.images_to_save[self.index]
+                if img_item.name.strip():
+                    bpy.ops.ai_workflow.create_image(
+                        'INVOKE_DEFAULT',
+                        image_name=img_item.name
+                    )
+                else:
+                    self.report({'ERROR'}, "Image name is empty")
+                    return {'CANCELLED'}
+        return {'FINISHED'}
+
+
 # -------------------------------------------------------------------
 # REGISTRATION
 # -------------------------------------------------------------------
@@ -403,6 +514,10 @@ classes = (
     RemoveResetImageOperator,
     AddSaveImageOperator,
     RemoveSaveImageOperator,
+    CreateImageOperator,
+    CreateImageEditorImageOperator,
+    CreateResetImageOperator,
+    CreateSaveImageOperator,
 )
 
 
