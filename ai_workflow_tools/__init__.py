@@ -26,30 +26,26 @@ bl_info = {
 # -------------------------------------------------------------------
 
 # Import all modules
+from . import (
+    utils,
+    properties,
+    operators,
+    ui_lists,
+    preferences,
+    panels,
+    config_manager,
+)
+
+# Hot reload support for development
 if "bpy" in locals():
     import importlib
-    if "utils" in locals():
-        importlib.reload(utils)
-    if "properties" in locals():
-        importlib.reload(properties)
-    if "operators" in locals():
-        importlib.reload(operators)
-    if "ui_lists" in locals():
-        importlib.reload(ui_lists)
-    if "preferences" in locals():
-        importlib.reload(preferences)
-    if "panels" in locals():
-        importlib.reload(panels)
-    if "config_manager" in locals():
-        importlib.reload(config_manager)
-else:
-    from . import utils
-    from . import properties
-    from . import operators
-    from . import ui_lists
-    from . import preferences
-    from . import panels
-    from . import config_manager
+    importlib.reload(utils)
+    importlib.reload(properties)
+    importlib.reload(operators)
+    importlib.reload(ui_lists)
+    importlib.reload(preferences)
+    importlib.reload(panels)
+    importlib.reload(config_manager)
 
 # -------------------------------------------------------------------
 # REGISTRATION
