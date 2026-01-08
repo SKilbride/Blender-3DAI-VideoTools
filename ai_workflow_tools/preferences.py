@@ -115,10 +115,21 @@ class AIWorkflowPreferences(AddonPreferences):
         row.prop(action, "select_camera", text="Select Camera")
 
         if action.select_camera:
-            row = box.row()
+            row = box.row(align=True)
             row.prop(action, "camera_name", text="Camera")
             # Add object picker
             row.prop_search(action, "camera_name", bpy.data, "objects", text="")
+            # Add create button
+            create_op = row.operator("ai_workflow.create_camera_for_action", text="", icon='ADD')
+
+            # Show warning if camera doesn't exist or is not a camera
+            if action.camera_name:
+                if action.camera_name not in bpy.data.objects:
+                    warning_row = box.row()
+                    warning_row.label(text=f"⚠ Camera '{action.camera_name}' doesn't exist", icon='ERROR')
+                elif bpy.data.objects[action.camera_name].type != 'CAMERA':
+                    warning_row = box.row()
+                    warning_row.label(text=f"⚠ '{action.camera_name}' is not a camera", icon='ERROR')
 
     def draw_image_editor_settings(self, layout, action):
         """Draw image editor settings."""

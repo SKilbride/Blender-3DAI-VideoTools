@@ -386,6 +386,80 @@ class RemoveSaveImageOperator(Operator):
         return {'FINISHED'}
 
 
+class CreateCameraOperator(Operator):
+    """Create a new camera if it doesn't exist."""
+    bl_idname = "ai_workflow.create_camera"
+    bl_label = "Create Camera"
+    bl_description = "Create a new camera with the specified name"
+
+    camera_name: StringProperty(name="Camera Name")
+    location_x: IntProperty(name="X", default=0)
+    location_y: IntProperty(name="Y", default=0)
+    location_z: IntProperty(name="Z", default=0)
+
+    def invoke(self, context, event):
+        """Show dialog for camera location."""
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
+
+    def draw(self, context):
+        """Draw the dialog."""
+        layout = self.layout
+        layout.label(text=f"Create: {self.camera_name}")
+        row = layout.row()
+        row.label(text="Location:")
+        row.prop(self, "location_x", text="X")
+        row.prop(self, "location_y", text="Y")
+        row.prop(self, "location_z", text="Z")
+
+    def execute(self, context):
+        if not self.camera_name.strip():
+            self.report({'ERROR'}, "Camera name cannot be empty")
+            return {'CANCELLED'}
+
+        if self.camera_name in bpy.data.objects:
+            obj = bpy.data.objects[self.camera_name]
+            if obj.type == 'CAMERA':
+                self.report({'INFO'}, f"Camera '{self.camera_name}' already exists")
+                return {'FINISHED'}
+            else:
+                self.report({'ERROR'}, f"Object '{self.camera_name}' exists but is not a camera")
+                return {'CANCELLED'}
+
+        try:
+            location = (self.location_x, self.location_y, self.location_z)
+            camera_data = bpy.data.cameras.new(name=self.camera_name)
+            camera_object = bpy.data.objects.new(self.camera_name, camera_data)
+            context.scene.collection.objects.link(camera_object)
+            camera_object.location = location
+            self.report({'INFO'}, f"Created camera '{self.camera_name}' at {location}")
+            return {'FINISHED'}
+        except Exception as e:
+            self.report({'ERROR'}, f"Failed to create camera: {str(e)}")
+            return {'CANCELLED'}
+
+
+class CreateCameraForActionOperator(Operator):
+    """Create the camera for the current action."""
+    bl_idname = "ai_workflow.create_camera_for_action"
+    bl_label = "Create Camera"
+    bl_description = "Create the camera specified in this action"
+
+    def execute(self, context):
+        preferences = context.preferences.addons[__package__].preferences
+        if preferences.active_action_index < len(preferences.actions):
+            action = preferences.actions[preferences.active_action_index]
+            if action.camera_name.strip():
+                bpy.ops.ai_workflow.create_camera(
+                    'INVOKE_DEFAULT',
+                    camera_name=action.camera_name
+                )
+            else:
+                self.report({'ERROR'}, "Camera name is empty")
+                return {'CANCELLED'}
+        return {'FINISHED'}
+
+
 class CreateImageOperator(Operator):
     """Create a new image if it doesn't exist."""
     bl_idname = "ai_workflow.create_image"
@@ -514,6 +588,8 @@ classes = (
     RemoveResetImageOperator,
     AddSaveImageOperator,
     RemoveSaveImageOperator,
+    CreateCameraOperator,
+    CreateCameraForActionOperator,
     CreateImageOperator,
     CreateImageEditorImageOperator,
     CreateResetImageOperator,
