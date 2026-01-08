@@ -1,0 +1,83 @@
+[
+    {
+        "button_name": "First Frame View",
+        "action_type": "CAMERA_SELECT",
+        "select_camera": true,
+        "camera_object_name": "Camera.001",
+        "change_image_editor": true,
+        "image_name_to_view": "FirstFrame",
+        "change_node_tree": true,
+        "node_tree_name": "First Frame",
+        "update_timeline": false,
+        "timeline_frame": 0
+    },
+    {
+        "button_name": "LastFrame Frame View",
+        "action_type": "CAMERA_SELECT",
+        "select_camera": true,
+        "camera_object_name": "Camera.002",
+        "change_image_editor": true,
+        "image_name_to_view": "LastFrame",
+        "change_node_tree": true,
+        "node_tree_name": "Last Frame",
+        "update_timeline": false,
+        "timeline_frame": 0
+    },
+    {
+        "button_name": "Show Depth - First Frame",
+        "action_type": "CAMERA_SELECT",
+        "select_camera": true,
+        "camera_object_name": "Camera.001",
+        "change_image_editor": true,
+        "image_name_to_view": "FirstFrameDepth",
+        "change_node_tree": true,
+        "node_tree_name": "First Frame",
+        "update_timeline": false,
+        "timeline_frame": 0
+    },
+    {
+        "button_name": "Show Depth - LastFrame",
+        "action_type": "CAMERA_SELECT",
+        "select_camera": true,
+        "camera_object_name": "Camera.002",
+        "change_image_editor": true,
+        "image_name_to_view": "LastFrameDepth",
+        "change_node_tree": true,
+        "node_tree_name": "Last Frame",
+        "update_timeline": false,
+        "timeline_frame": 0
+    },
+    {
+        "button_name": "Save Outputs",
+        "action_type": "IMAGE_SAVE",
+        "images_to_save": [
+            {
+                "name": "FirstFrame",
+                "save_as": "C:\\Users\\NV\\Projects\\LTX2_Demo\\comfyui-ltx-nvidia-feature-ltx2-code-15-12-rebased-nvfp4\\input\\FirstFrame.PNG",
+                "allow_overwrite": true
+            },
+            {
+                "name": "LastFrame",
+                "save_as": "C:\\Users\\NV\\Projects\\LTX2_Demo\\comfyui-ltx-nvidia-feature-ltx2-code-15-12-rebased-nvfp4\\input\\LastFrame.PNG",
+                "allow_overwrite": true
+            }
+        ]
+    },
+    {
+        "button_name": "Reset Images/Setup",
+        "action_type": "RESET",
+        "select_camera": true,
+        "camera_object_name": "Camera.001",
+        "reset_images": true,
+        "images_to_reset": [
+            {"name": "FirstFrame"},
+            {"name": "FirstFrameDepth"}
+        ],
+        "change_node_tree": true,
+        "change_image_editor": true,
+        "image_name_to_view": "FirstFrame",
+        "update_timeline": true,
+        "timeline_frame": 0,
+        "node_tree_name": "First Frame"
+    }
+]
