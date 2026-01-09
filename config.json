@@ -53,12 +53,12 @@
         "images_to_save": [
             {
                 "name": "FirstFrame",
-                "save_as": "C:\\Users\\NV\\Projects\\LTX2_Demo\\comfyui-ltx-nvidia-feature-ltx2-code-15-12-rebased-nvfp4\\input\\FirstFrame.PNG",
+                "save_as": "//output/FirstFrame.png",
                 "allow_overwrite": true
             },
             {
                 "name": "LastFrame",
-                "save_as": "C:\\Users\\NV\\Projects\\LTX2_Demo\\comfyui-ltx-nvidia-feature-ltx2-code-15-12-rebased-nvfp4\\input\\LastFrame.PNG",
+                "save_as": "//output/LastFrame.png",
                 "allow_overwrite": true
             }
         ]
