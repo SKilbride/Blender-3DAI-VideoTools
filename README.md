@@ -17,22 +17,34 @@ A Blender add-on that provides JSON-driven workflow actions for camera control, 
 
 ## Installation
 
-### Method 1: Install as ZIP (Recommended)
+### Method 1: Install from GitHub (Recommended)
 
-1. Download or zip the `ai_workflow_tools` folder
-2. In Blender, go to **Edit → Preferences → Add-ons**
-3. Click **Install...** and select the `ai_workflow_tools` folder or zip file
-4. Enable the add-on by checking the checkbox next to "Development: AI Workflow Config Tools"
+1. **Clone or Download** this repository:
+   ```bash
+   git clone https://github.com/SKilbride/Blender-3DAI-VideoTools.git
+   ```
+   Or download as ZIP from GitHub and extract it
+
+2. **Rename** the folder to something simpler (optional but recommended):
+   - From: `Blender-3DAI-VideoTools`
+   - To: `ai_workflow_tools`
+
+3. **Install in Blender**:
+   - Go to **Edit → Preferences → Add-ons**
+   - Click **Install...** and select the folder (or create a ZIP of it first)
+   - Enable the add-on by checking the checkbox next to "Development: AI Workflow Config Tools"
 
 ### Method 2: Manual Installation
 
-1. Copy the entire `ai_workflow_tools` folder to your Blender addons directory:
+1. Clone or download this repository
+2. Copy the entire repository folder to your Blender addons directory:
    - **Windows**: `C:\Users\{username}\AppData\Roaming\Blender Foundation\Blender\{version}\scripts\addons\`
    - **macOS**: `/Users/{username}/Library/Application Support/Blender/{version}/scripts/addons/`
    - **Linux**: `~/.config/blender/{version}/scripts/addons/`
 
-2. Restart Blender or click **Refresh** in the Add-ons preferences
-3. Enable the add-on in **Edit → Preferences → Add-ons**
+3. Optionally rename the folder to `ai_workflow_tools` for a cleaner name
+4. Restart Blender or click **Refresh** in the Add-ons preferences
+5. Enable the add-on in **Edit → Preferences → Add-ons**
 
 ## Usage
 
@@ -159,7 +171,7 @@ Here's a typical workflow for setting up a new AI video generation project:
 
 ### Sharing Configurations
 
-Your configuration is stored in `ai_workflow_tools/config.json`. You can:
+Your configuration is stored in `config.json` in the addon folder. You can:
 - Share this file with team members
 - Version control it with git
 - Create multiple configurations and swap them out
@@ -191,16 +203,19 @@ The `config.json` file uses this structure:
 ## File Structure
 
 ```
-ai_workflow_tools/
-├── __init__.py          # Main entry point with bl_info
-├── config_manager.py    # JSON loading and saving logic
-├── operators.py         # All operator classes
-├── panels.py            # 3D View UI panel
-├── preferences.py       # Addon preferences panel
-├── properties.py        # Property group definitions
-├── ui_lists.py          # UIList components
-├── utils.py             # Helper functions
-└── config.json          # Configuration file
+Blender-3DAI-VideoTools/  # The addon (install this folder)
+├── __init__.py           # Main entry point with bl_info
+├── config_manager.py     # JSON loading and saving logic
+├── operators.py          # All operator classes
+├── panels.py             # 3D View UI panel
+├── preferences.py        # Addon preferences panel
+├── properties.py         # Property group definitions
+├── ui_lists.py           # UIList components
+├── utils.py              # Helper functions
+├── config.json           # Configuration file
+├── README.md             # Documentation
+├── INSTALL.md            # Installation guide
+└── .gitignore            # Git configuration
 ```
 
 ## Development

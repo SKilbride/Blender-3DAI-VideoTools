@@ -2,48 +2,59 @@
 
 ## Quick Install
 
-### Option 1: Install from Folder (Recommended)
+### Option 1: Install from GitHub (Recommended)
 
-1. **Locate the addon folder**: `ai_workflow_tools/`
+1. **Clone or download the repository**:
+   ```bash
+   # Clone with git
+   git clone https://github.com/SKilbride/Blender-3DAI-VideoTools.git
 
-2. **Create a ZIP file** (optional but recommended):
+   # Or download ZIP from GitHub and extract
+   ```
+
+2. **Rename folder** (optional but recommended):
+   - Rename `Blender-3DAI-VideoTools` to `ai_workflow_tools` for a cleaner name
+
+3. **Create a ZIP file** (optional):
    ```bash
    # On Linux/Mac:
-   cd Blender-3DAI-VideoTools
    zip -r ai_workflow_tools.zip ai_workflow_tools/
 
    # On Windows:
-   # Right-click the ai_workflow_tools folder → Send to → Compressed (zipped) folder
+   # Right-click the folder → Send to → Compressed (zipped) folder
    ```
 
-3. **Install in Blender**:
+4. **Install in Blender**:
    - Open Blender
    - Go to **Edit → Preferences** (or **Blender → Preferences** on macOS)
    - Select the **Add-ons** tab
    - Click **Install...** button at the top
    - Navigate to and select either:
-     - The `ai_workflow_tools.zip` file, or
-     - The `ai_workflow_tools` folder directly
+     - The ZIP file you created, or
+     - The folder directly (Blender-3DAI-VideoTools or ai_workflow_tools)
    - Click **Install Add-on**
 
-4. **Enable the addon**:
+5. **Enable the addon**:
    - Search for "AI Workflow" in the add-ons list
    - Check the checkbox next to **"Development: AI Workflow Config Tools"**
    - The addon is now active!
 
 ### Option 2: Manual Installation
 
-1. **Find your Blender addons folder**:
+1. **Clone or download the repository** (see Option 1, step 1)
+
+2. **Find your Blender addons folder**:
    - **Windows**: `C:\Users\{YourUsername}\AppData\Roaming\Blender Foundation\Blender\{version}\scripts\addons\`
    - **macOS**: `/Users/{YourUsername}/Library/Application Support/Blender/{version}/scripts/addons/`
    - **Linux**: `~/.config/blender/{version}/scripts/addons/`
 
-2. **Copy the folder**:
-   - Copy the entire `ai_workflow_tools` folder into the addons directory
+3. **Copy the folder**:
+   - Copy the entire repository folder into the addons directory
+   - You can rename it to `ai_workflow_tools` for simplicity
 
-3. **Restart Blender** or click **Refresh** in Add-ons preferences
+4. **Restart Blender** or click **Refresh** in Add-ons preferences
 
-4. **Enable the addon**:
+5. **Enable the addon**:
    - Go to **Edit → Preferences → Add-ons**
    - Search for "AI Workflow"
    - Check the checkbox to enable it
@@ -80,12 +91,12 @@ To verify the installation worked:
 ### "Add-on not showing up"
 - Make sure you enabled the checkbox in preferences
 - Try searching for "AI" or "Workflow" in the add-ons search
-- Check that the folder name is exactly `ai_workflow_tools` (no extra characters)
+- Check that the folder contains `__init__.py` with `bl_info`
 
-### "No module named 'ai_workflow_tools'"
+### "No module named" errors
 - The folder structure is incorrect
-- Make sure `__init__.py` is directly inside `ai_workflow_tools/`
-- Don't nest folders (it should be `addons/ai_workflow_tools/__init__.py`)
+- Make sure `__init__.py` is directly inside the addon folder
+- Don't nest folders (it should be `addons/Blender-3DAI-VideoTools/__init__.py` or `addons/ai_workflow_tools/__init__.py`)
 
 ### "Panel not visible"
 - Press `N` in the 3D Viewport to show the sidebar
@@ -101,16 +112,24 @@ To verify the installation worked:
 
 To update the addon:
 
-1. **Option A**: Replace the folder
-   - Delete the old `ai_workflow_tools` folder from addons
-   - Copy in the new version
+1. **Option A**: Pull latest changes (if using git)
+   ```bash
+   cd /path/to/addon/folder
+   git pull origin main
+   ```
+   - Restart Blender to reload the addon
+
+2. **Option B**: Replace the folder
+   - Delete the old addon folder from addons directory
+   - Download/clone the new version
+   - Copy it into addons directory
    - Restart Blender
 
-2. **Option B**: Reinstall
+3. **Option C**: Reinstall via Blender
    - Disable and remove the old version in preferences
    - Install the new version using the Install button
 
-**Note**: Your `config.json` will be preserved if you're updating the addon files directly. If you want to keep your custom configuration, back up `config.json` before updating.
+**Note**: Your `config.json` will be preserved if you're updating in place. If you want to keep your custom configuration, back up `config.json` before updating.
 
 ## Uninstallation
 
@@ -119,7 +138,7 @@ To remove the addon:
 1. Go to **Edit → Preferences → Add-ons**
 2. Find "AI Workflow Config Tools"
 3. Click the **Remove** button
-4. Or manually delete the `ai_workflow_tools` folder from your addons directory
+4. Or manually delete the addon folder from your addons directory
 
 ## Next Steps
 
