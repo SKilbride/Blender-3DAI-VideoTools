@@ -9,6 +9,9 @@ from pathlib import Path
 # Module-level initialization flag
 __initialized_flag = False
 
+# Internal config text block name
+INTERNAL_CONFIG_NAME = "AI_Tool_Config.json"
+
 
 def get_config_path():
     """Returns the path to the config.json file."""
@@ -16,10 +19,81 @@ def get_config_path():
     return addon_dir / "config.json"
 
 
-def load_config(context):
-    """Loads action configuration from config.json into scene properties."""
-    json_path = get_config_path()
+def has_internal_config():
+    """Check if the current .blend file has an internal config."""
+    return INTERNAL_CONFIG_NAME in bpy.data.texts
 
+
+def get_internal_config_data():
+    """
+    Load config data from internal .blend text block.
+
+    Returns:
+        tuple: (success: bool, data: list or None, error: str or None)
+    """
+    if not has_internal_config():
+        return False, None, "No internal config found"
+
+    try:
+        text_block = bpy.data.texts[INTERNAL_CONFIG_NAME]
+        config_content = text_block.as_string()
+        config_data = json.loads(config_content)
+        return True, config_data, None
+    except json.JSONDecodeError as e:
+        return False, None, f"Invalid JSON in internal config: {str(e)}"
+    except Exception as e:
+        return False, None, f"Error reading internal config: {str(e)}"
+
+
+def save_internal_config(config_data):
+    """
+    Save config data to internal .blend text block.
+
+    Args:
+        config_data: List of action dictionaries
+
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+    try:
+        # Create or get existing text block
+        if INTERNAL_CONFIG_NAME in bpy.data.texts:
+            text_block = bpy.data.texts[INTERNAL_CONFIG_NAME]
+            text_block.clear()
+        else:
+            text_block = bpy.data.texts.new(INTERNAL_CONFIG_NAME)
+
+        # Write JSON to text block
+        json_str = json.dumps(config_data, indent=4, ensure_ascii=False)
+        text_block.write(json_str)
+
+        return True, f"Saved config to internal .blend file"
+    except Exception as e:
+        return False, f"Failed to save internal config: {str(e)}"
+
+
+def delete_internal_config():
+    """
+    Delete the internal config from the .blend file.
+
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+    if not has_internal_config():
+        return False, "No internal config to delete"
+
+    try:
+        bpy.data.texts.remove(bpy.data.texts[INTERNAL_CONFIG_NAME])
+        return True, "Deleted internal config"
+    except Exception as e:
+        return False, f"Failed to delete internal config: {str(e)}"
+
+
+def load_config(context):
+    """
+    Loads action configuration into scene properties.
+    Priority: Internal .blend config > External config.json
+    """
     scene = context.scene
     props = scene.my_addon_props
 
@@ -27,84 +101,113 @@ def load_config(context):
     props.error_message = ""
 
     print(f"=== AI Workflow Config Loader ===")
-    print(f"Looking for config at: {json_path}")
-    print(f"Config exists: {json_path.exists()}")
 
-    if not json_path.exists():
-        error_msg = f"Config not found at:\n{json_path}"
-        props.error_message = error_msg
-        print(f"ERROR: {error_msg}")
-        return
+    # Check for internal config first (project-specific)
+    if has_internal_config():
+        success, config_data, error = get_internal_config_data()
+        if success:
+            print(f"Loading from INTERNAL .blend config")
+            print(f"Loaded {len(config_data)} entries from internal config")
+        else:
+            print(f"ERROR: {error}")
+            props.error_message = error
+            # Fall through to try external config
+            config_data = None
+    else:
+        config_data = None
 
-    try:
-        with open(json_path, 'r', encoding='utf-8') as f:
-            config_data = json.load(f)
+    # Fall back to external config.json if no internal config
+    if config_data is None:
+        json_path = get_config_path()
+        print(f"Looking for EXTERNAL config at: {json_path}")
+        print(f"Config exists: {json_path.exists()}")
 
-        print(f"Loaded JSON with {len(config_data)} entries")
+        if not json_path.exists():
+            error_msg = f"Config not found at:\n{json_path}"
+            props.error_message = error_msg
+            print(f"ERROR: {error_msg}")
+            return
 
-        for idx, item in enumerate(config_data):
-            try:
-                action = props.actions.add()
+        try:
+            with open(json_path, 'r', encoding='utf-8') as f:
+                config_data = json.load(f)
 
-                action.button_name = item.get("button_name", "Unnamed Action")
-                action.action_type = item.get("action_type", "CAMERA_SELECT")
-                action.select_camera = item.get("select_camera", False)
-                action.change_image_editor = item.get("change_image_editor", False)
-                action.image_name_to_view = item.get("image_name_to_view", "")
-                action.reset_images = item.get("reset_images", False)
-                action.change_node_tree = item.get("change_node_tree", False)
-                action.node_tree_name = item.get("node_tree_name", "")
-                action.update_timeline = item.get("update_timeline", False)
-                action.timeline_frame = item.get("timeline_frame", 0)
+            print(f"Loaded {len(config_data)} entries from external config")
 
-                print(f"  Action {idx}: '{action.button_name}' (type: {action.action_type})")
+        except Exception as e:
+            error_msg = f"Error loading external config:\n{str(e)}"
+            props.error_message = error_msg
+            print(f"ERROR: {error_msg}")
+            import traceback
+            traceback.print_exc()
+            return
 
-                # Handle camera
-                cam_name = item.get("camera_object_name")
-                if cam_name:
-                    action.camera_name = cam_name
-                    if cam_name in bpy.data.objects and bpy.data.objects[cam_name].type == 'CAMERA':
-                        print(f"    Camera: {cam_name} ✓ (exists)")
-                    else:
-                        print(f"    Camera: {cam_name} (will create if needed)")
+    # Process config_data (from either source)
+    if config_data:
+        try:
+            for idx, item in enumerate(config_data):
+                try:
+                    action = props.actions.add()
 
-                if action.change_node_tree:
-                    print(f"    Node tree: '{action.node_tree_name}' (will verify at execution)")
+                    action.button_name = item.get("button_name", "Unnamed Action")
+                    action.action_type = item.get("action_type", "CAMERA_SELECT")
+                    action.select_camera = item.get("select_camera", False)
+                    action.change_image_editor = item.get("change_image_editor", False)
+                    action.image_name_to_view = item.get("image_name_to_view", "")
+                    action.reset_images = item.get("reset_images", False)
+                    action.change_node_tree = item.get("change_node_tree", False)
+                    action.node_tree_name = item.get("node_tree_name", "")
+                    action.update_timeline = item.get("update_timeline", False)
+                    action.timeline_frame = item.get("timeline_frame", 0)
 
-                if action.update_timeline:
-                    print(f"    Timeline: frame {action.timeline_frame}")
+                    print(f"  Action {idx}: '{action.button_name}' (type: {action.action_type})")
 
-                # Handle images to reset
-                if item.get("reset_images") and action.action_type == 'RESET':
-                    for img_item in item.get("images_to_reset", []):
-                        reset_img = action.images_to_reset.add()
-                        reset_img.name = img_item.get("name", "")
-                        print(f"    Reset image: {reset_img.name}")
+                    # Handle camera
+                    cam_name = item.get("camera_object_name")
+                    if cam_name:
+                        action.camera_name = cam_name
+                        if cam_name in bpy.data.objects and bpy.data.objects[cam_name].type == 'CAMERA':
+                            print(f"    Camera: {cam_name} ✓ (exists)")
+                        else:
+                            print(f"    Camera: {cam_name} (will create if needed)")
 
-                # Handle images to save
-                if action.action_type == 'IMAGE_SAVE':
-                    for img_item in item.get("images_to_save", []):
-                        save_img = action.images_to_save.add()
-                        save_img.name = img_item.get("name", "")
-                        save_img.save_as = img_item.get("save_as", "")
-                        save_img.allow_overwrite = img_item.get("allow_overwrite", True)
-                        print(f"    Save image: '{save_img.name}' → '{save_img.save_as}'")
+                    if action.change_node_tree:
+                        print(f"    Node tree: '{action.node_tree_name}' (will verify at execution)")
 
-            except Exception as e:
-                print(f"  ERROR loading action {idx}: {e}")
-                import traceback
-                traceback.print_exc()
-                # Continue loading other actions even if one fails
+                    if action.update_timeline:
+                        print(f"    Timeline: frame {action.timeline_frame}")
 
-        print(f"Successfully loaded {len(props.actions)} actions from config.json")
-        print("=================================")
+                    # Handle images to reset
+                    if item.get("reset_images") and action.action_type == 'RESET':
+                        for img_item in item.get("images_to_reset", []):
+                            reset_img = action.images_to_reset.add()
+                            reset_img.name = img_item.get("name", "")
+                            print(f"    Reset image: {reset_img.name}")
 
-    except Exception as e:
-        error_msg = f"Error loading config:\n{str(e)}"
-        props.error_message = error_msg
-        print(f"ERROR: {error_msg}")
-        import traceback
-        traceback.print_exc()
+                    # Handle images to save
+                    if action.action_type == 'IMAGE_SAVE':
+                        for img_item in item.get("images_to_save", []):
+                            save_img = action.images_to_save.add()
+                            save_img.name = img_item.get("name", "")
+                            save_img.save_as = img_item.get("save_as", "")
+                            save_img.allow_overwrite = img_item.get("allow_overwrite", True)
+                            print(f"    Save image: '{save_img.name}' → '{save_img.save_as}'")
+
+                except Exception as e:
+                    print(f"  ERROR loading action {idx}: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    # Continue loading other actions even if one fails
+
+            print(f"Successfully loaded {len(props.actions)} actions")
+            print("=================================")
+
+        except Exception as e:
+            error_msg = f"Error processing config:\n{str(e)}"
+            props.error_message = error_msg
+            print(f"ERROR: {error_msg}")
+            import traceback
+            traceback.print_exc()
 
 
 def save_config(actions):
