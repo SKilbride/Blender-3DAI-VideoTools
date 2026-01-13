@@ -7,6 +7,7 @@ from bpy.types import AddonPreferences
 from bpy.props import CollectionProperty, IntProperty
 
 from .properties import ActionProperty
+from . import config_manager
 
 
 class AIWorkflowPreferences(AddonPreferences):
@@ -30,9 +31,29 @@ class AIWorkflowPreferences(AddonPreferences):
         # Header with load/save buttons
         box = layout.box()
         row = box.row(align=True)
-        row.label(text="Configuration File:", icon='FILE_FOLDER')
-        row.operator("ai_workflow.load_config", text="Load from JSON", icon='IMPORT')
-        row.operator("ai_workflow.save_config", text="Save to JSON", icon='EXPORT')
+        row.label(text="External Config (JSON File):", icon='FILE_FOLDER')
+        row.operator("ai_workflow.load_config", text="Load", icon='IMPORT')
+        row.operator("ai_workflow.save_config", text="Save", icon='EXPORT')
+
+        # Internal .blend config section
+        box = layout.box()
+        has_internal = config_manager.has_internal_config()
+
+        row = box.row(align=True)
+        if has_internal:
+            row.label(text="Internal Config (.blend):", icon='CHECKMARK')
+            row.operator("ai_workflow.load_from_internal", text="Reload", icon='FILE_REFRESH')
+            row.operator("ai_workflow.delete_internal", text="Delete", icon='X')
+        else:
+            row.label(text="Internal Config (.blend):", icon='ADD')
+            row.operator("ai_workflow.save_to_internal", text="Save to .blend", icon='FILE_TEXT')
+
+        # Show which config is active
+        info_row = box.row()
+        if has_internal:
+            info_row.label(text="✓ Using internal .blend config (project-specific)", icon='INFO')
+        else:
+            info_row.label(text="ℹ Using external config.json (global)", icon='INFO')
 
         layout.separator()
 

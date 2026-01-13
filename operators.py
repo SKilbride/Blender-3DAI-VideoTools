@@ -571,6 +571,114 @@ class CreateSaveImageOperator(Operator):
         return {'FINISHED'}
 
 
+class SaveToInternalConfigOperator(Operator):
+    """Save the current configuration to internal .blend file."""
+    bl_idname = "ai_workflow.save_to_internal"
+    bl_label = "Save to .blend"
+    bl_description = "Save configuration as internal text block in the .blend file"
+
+    def execute(self, context):
+        preferences = context.preferences.addons[__package__].preferences
+
+        # Build config data from preferences (reuse save_config logic)
+        config_data = []
+        for action in preferences.actions:
+            item = {"button_name": action.button_name, "action_type": action.action_type}
+
+            if action.select_camera and action.camera_name:
+                item["select_camera"] = True
+                item["camera_object_name"] = action.camera_name
+            else:
+                item["select_camera"] = False
+
+            if action.change_image_editor and action.image_name_to_view:
+                item["change_image_editor"] = True
+                item["image_name_to_view"] = action.image_name_to_view
+            else:
+                item["change_image_editor"] = False
+
+            if action.change_node_tree and action.node_tree_name:
+                item["change_node_tree"] = True
+                item["node_tree_name"] = action.node_tree_name
+            else:
+                item["change_node_tree"] = False
+
+            if action.update_timeline:
+                item["update_timeline"] = True
+                item["timeline_frame"] = action.timeline_frame
+            else:
+                item["update_timeline"] = False
+
+            if action.action_type == 'RESET' and action.reset_images:
+                item["reset_images"] = True
+                item["images_to_reset"] = [{"name": img.name} for img in action.images_to_reset]
+            else:
+                item["reset_images"] = False
+
+            if action.action_type == 'IMAGE_SAVE':
+                item["images_to_save"] = [
+                    {"name": img.name, "save_as": img.save_as, "allow_overwrite": img.allow_overwrite}
+                    for img in action.images_to_save
+                ]
+
+            config_data.append(item)
+
+        # Save to internal config
+        success, message = config_manager.save_internal_config(config_data)
+
+        if success:
+            self.report({'INFO'}, message)
+            # Reload to use the new internal config
+            config_manager.load_config(context)
+        else:
+            self.report({'ERROR'}, message)
+
+        return {'FINISHED'}
+
+
+class LoadFromInternalConfigOperator(Operator):
+    """Load configuration from internal .blend file."""
+    bl_idname = "ai_workflow.load_from_internal"
+    bl_label = "Load from .blend"
+    bl_description = "Load configuration from internal text block in the .blend file"
+
+    @classmethod
+    def poll(cls, context):
+        return config_manager.has_internal_config()
+
+    def execute(self, context):
+        # Reload config (will automatically use internal if available)
+        config_manager.load_config(context)
+        self.report({'INFO'}, "Loaded from internal .blend config")
+        return {'FINISHED'}
+
+
+class DeleteInternalConfigOperator(Operator):
+    """Delete the internal config from the .blend file."""
+    bl_idname = "ai_workflow.delete_internal"
+    bl_label = "Delete Internal Config"
+    bl_description = "Remove the configuration text block from this .blend file"
+
+    @classmethod
+    def poll(cls, context):
+        return config_manager.has_internal_config()
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event)
+
+    def execute(self, context):
+        success, message = config_manager.delete_internal_config()
+
+        if success:
+            self.report({'INFO'}, message)
+            # Reload from external config
+            config_manager.load_config(context)
+        else:
+            self.report({'ERROR'}, message)
+
+        return {'FINISHED'}
+
+
 # -------------------------------------------------------------------
 # REGISTRATION
 # -------------------------------------------------------------------
@@ -594,6 +702,9 @@ classes = (
     CreateImageEditorImageOperator,
     CreateResetImageOperator,
     CreateSaveImageOperator,
+    SaveToInternalConfigOperator,
+    LoadFromInternalConfigOperator,
+    DeleteInternalConfigOperator,
 )
 
 
