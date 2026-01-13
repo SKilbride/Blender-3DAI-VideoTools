@@ -7,34 +7,31 @@
 1. **Clone or download the repository**:
    ```bash
    # Clone with git
-   git clone https://github.com/SKilbride/Blender-3DAI-VideoTools.git
+   git clone https://github.com/SKilbride/blender_ai_workflow_tools.git
 
    # Or download ZIP from GitHub and extract
    ```
 
-2. **Rename folder** (optional but recommended):
-   - Rename `Blender-3DAI-VideoTools` to `ai_workflow_tools` for a cleaner name
-
-3. **Create a ZIP file** (optional):
+2. **Create a ZIP file** (optional):
    ```bash
    # On Linux/Mac:
-   zip -r ai_workflow_tools.zip ai_workflow_tools/
+   zip -r blender_ai_workflow_tools.zip blender_ai_workflow_tools/
 
    # On Windows:
    # Right-click the folder → Send to → Compressed (zipped) folder
    ```
 
-4. **Install in Blender**:
+3. **Install in Blender**:
    - Open Blender
    - Go to **Edit → Preferences** (or **Blender → Preferences** on macOS)
    - Select the **Add-ons** tab
    - Click **Install...** button at the top
    - Navigate to and select either:
      - The ZIP file you created, or
-     - The folder directly (Blender-3DAI-VideoTools or ai_workflow_tools)
+     - The folder directly (blender_ai_workflow_tools)
    - Click **Install Add-on**
 
-5. **Enable the addon**:
+4. **Enable the addon**:
    - Search for "AI Workflow" in the add-ons list
    - Check the checkbox next to **"Development: AI Workflow Config Tools"**
    - The addon is now active!
@@ -49,8 +46,7 @@
    - **Linux**: `~/.config/blender/{version}/scripts/addons/`
 
 3. **Copy the folder**:
-   - Copy the entire repository folder into the addons directory
-   - You can rename it to `ai_workflow_tools` for simplicity
+   - Copy the entire `blender_ai_workflow_tools` folder into the addons directory
 
 4. **Restart Blender** or click **Refresh** in Add-ons preferences
 
@@ -96,7 +92,8 @@ To verify the installation worked:
 ### "No module named" errors
 - The folder structure is incorrect
 - Make sure `__init__.py` is directly inside the addon folder
-- Don't nest folders (it should be `addons/Blender-3DAI-VideoTools/__init__.py` or `addons/ai_workflow_tools/__init__.py`)
+- Don't nest folders (it should be `addons/blender_ai_workflow_tools/__init__.py`)
+- Folder name must use underscores, not hyphens (Python requirement)
 
 ### "Panel not visible"
 - Press `N` in the 3D Viewport to show the sidebar

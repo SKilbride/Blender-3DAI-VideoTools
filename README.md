@@ -21,15 +21,11 @@ A Blender add-on that provides JSON-driven workflow actions for camera control, 
 
 1. **Clone or Download** this repository:
    ```bash
-   git clone https://github.com/SKilbride/Blender-3DAI-VideoTools.git
+   git clone https://github.com/SKilbride/blender_ai_workflow_tools.git
    ```
    Or download as ZIP from GitHub and extract it
 
-2. **Rename** the folder to something simpler (optional but recommended):
-   - From: `Blender-3DAI-VideoTools`
-   - To: `ai_workflow_tools`
-
-3. **Install in Blender**:
+2. **Install in Blender**:
    - Go to **Edit → Preferences → Add-ons**
    - Click **Install...** and select the folder (or create a ZIP of it first)
    - Enable the add-on by checking the checkbox next to "Development: AI Workflow Config Tools"
@@ -42,9 +38,8 @@ A Blender add-on that provides JSON-driven workflow actions for camera control, 
    - **macOS**: `/Users/{username}/Library/Application Support/Blender/{version}/scripts/addons/`
    - **Linux**: `~/.config/blender/{version}/scripts/addons/`
 
-3. Optionally rename the folder to `ai_workflow_tools` for a cleaner name
-4. Restart Blender or click **Refresh** in the Add-ons preferences
-5. Enable the add-on in **Edit → Preferences → Add-ons**
+3. Restart Blender or click **Refresh** in the Add-ons preferences
+4. Enable the add-on in **Edit → Preferences → Add-ons**
 
 ## Usage
 
@@ -203,19 +198,19 @@ The `config.json` file uses this structure:
 ## File Structure
 
 ```
-Blender-3DAI-VideoTools/  # The addon (install this folder)
-├── __init__.py           # Main entry point with bl_info
-├── config_manager.py     # JSON loading and saving logic
-├── operators.py          # All operator classes
-├── panels.py             # 3D View UI panel
-├── preferences.py        # Addon preferences panel
-├── properties.py         # Property group definitions
-├── ui_lists.py           # UIList components
-├── utils.py              # Helper functions
-├── config.json           # Configuration file
-├── README.md             # Documentation
-├── INSTALL.md            # Installation guide
-└── .gitignore            # Git configuration
+blender_ai_workflow_tools/  # The addon (install this folder)
+├── __init__.py             # Main entry point with bl_info
+├── config_manager.py       # JSON loading and saving logic
+├── operators.py            # All operator classes
+├── panels.py               # 3D View UI panel
+├── preferences.py          # Addon preferences panel
+├── properties.py           # Property group definitions
+├── ui_lists.py             # UIList components
+├── utils.py                # Helper functions
+├── config.json             # Configuration file
+├── README.md               # Documentation
+├── INSTALL.md              # Installation guide
+└── .gitignore              # Git configuration
 ```
 
 ## Development
